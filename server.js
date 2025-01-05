@@ -9,13 +9,13 @@ app.use(bodyParser.json());
 
 // MongoDB connection
 mongoose
-  .connect("mongodb://localhost:27017/hospital")
+  .connect("mongodb+srv://CS_HOSPITALS:Gq1ixBRGVMb8BdH7@cluster0.tt3fg.mongodb.net/hospital?retryWrites=true&w=majority&appName=Cluster0")
   .then(() => console.log("Connected to MongoDB"))
   .catch(err => console.error("MongoDB connection error:", err));
 
-// Routes
-// const billRoutes = require("./routes/bills");
-// app.use("/api", billRoutes);
+//Routes
+const billRoutes = require("./routes/bills");
+app.use("/api", billRoutes);
 
 // Start the server
 const PORT = 3000;
