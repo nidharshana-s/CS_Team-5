@@ -6,6 +6,59 @@ const mongoose = require('mongoose');
 
 const router = express.Router()
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Bill:
+ *       type: object
+ *       properties:
+ *         bid:
+ *           type: string
+ *           description: Unique identifier for the bill
+ *         Timestamp:
+ *           type: string
+ *           description: Timestamp of the bill creation
+ *         UHID:
+ *           type: string
+ *           description: Unique Hospital ID
+ *         med:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               mid:
+ *                 type: string
+ *                 description: Medicine ID
+ *               quantity:
+ *                 type: number
+ *                 description: Quantity of the medicine
+ *         total:
+ *           type: number
+ *           description: Total amount of the bill
+ *       required:
+ *         - bid
+ *         - Timestamp
+ *         - UHID
+ *         - med
+ *         - total
+ * 
+ * /api/createbill:
+ *   post:
+ *     summary: Create a new bill
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Bill'
+ *     responses:
+ *       200:
+ *         description: Bill created successfully
+ *       400:
+ *         description: Bad request
+ */
+
 
 router.post("/createbill", async (req, res) => {
     try {
@@ -49,15 +102,14 @@ router.post("/createbill", async (req, res) => {
       // Generate a unique `bid` (bill ID)
       const bid = `B${Date.now()}`; // Example: "B1678425472347"
   
-      let Timestamp = new Date()
-      Timestamp = Timestamp.toDateString()
+      //let date = new Date()
       // Create a new bill document
       const newBill = new Bill({
         bid,
-        Timestamp,
         UHID,
         med,
-        total
+        total,
+        Date:new Date()
       });
   
       // Save the bill to the database
@@ -67,10 +119,10 @@ router.post("/createbill", async (req, res) => {
       res.status(201).json({
         message: "Bill created successfully",
         bid,
-        Timestamp,
         UHID,
         med,
         total,
+        Date:new Date()
       });
     } catch (error) {
       console.error(error);
@@ -78,10 +130,94 @@ router.post("/createbill", async (req, res) => {
     }
   });
 
+/**
+ * @swagger
+ * /api/generatebill/:bid:
+ *   get:
+ *     summary: Retrieve a bill with detailed patient and medicine information
+ *     description: This endpoint retrieves a bill by its ID (bid). It includes details about the patient and the medicines in the bill.
+ *     parameters:
+ *       - in: path
+ *         name: bid
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The unique ID of the bill
+ *     responses:
+ *       200:
+ *         description: Bill retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 bid:
+ *                   type: string
+ *                   description: Unique ID of the bill
+ *                 patient:
+ *                   type: object
+ *                   properties:
+ *                     firstName:
+ *                       type: string
+ *                       description: First name of the patient
+ *                     lastName:
+ *                       type: string
+ *                       description: Last name of the patient
+ *                     UHID:
+ *                       type: string
+ *                       description: Unique Hospital ID of the patient
+ *                     age:
+ *                       type: integer
+ *                       description: Age of the patient
+ *                 medicines:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       mid:
+ *                         type: string
+ *                         description: Medicine ID
+ *                       name:
+ *                         type: string
+ *                         description: Name of the medicine
+ *                       quantity:
+ *                         type: integer
+ *                         description: Quantity of the medicine
+ *                       price:
+ *                         type: number
+ *                         description: Price of the medicine
+ *                 billDate:
+ *                   type: string
+ *                   format: date-time
+ *                   description: Timestamp of when the bill was created
+ *                 total:
+ *                   type: number
+ *                   description: Total amount of the bill
+ *       404:
+ *         description: Bill or patient not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message
+ */
 
 router.get("/generatebill/:bid", async (req, res) => {
   try{
-    // console.log(req)
+    console.log(req)
     const { bid } = req.params;  // Correct way to extract bid from params
 
     const bill = await Bill.findOne({ bid });

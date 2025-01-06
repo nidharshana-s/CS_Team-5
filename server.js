@@ -1,12 +1,15 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const { specs, swaggerUi } = require('./config/swagger');
 
 const app = express();
 
 // Middleware
 //app.use(bodyParser.json());
 app.use(express.json()); 
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 // MongoDB connection
 mongoose
