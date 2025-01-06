@@ -134,6 +134,29 @@ router.get("/generatebill/:bid", async (req, res) => {
   }
 });
 
-  
+router.delete("/deletebill/:bid", async (req, res) => {
+  try {
+    const { bid } = req.params;  // Extracting the bid from params
+
+    // Find the bill by its bid
+    const bill = await Bill.findOne({ bid });
+    
+    if (!bill) {
+      return res.status(404).json({ error: 'Bill not found' });
+    }
+
+    // Delete the bill from the database
+    await Bill.deleteOne({ bid });
+
+    // Send the response
+    res.status(200).json({
+      message: `Bill with ID ${bid} has been deleted successfully.`,
+    });
+  } catch (error) {
+    console.error('Error deleting bill:', error);
+    res.status(500).json({ error: 'An error occurred while deleting the bill' });
+  }
+});
+
 module.exports = router;
 
