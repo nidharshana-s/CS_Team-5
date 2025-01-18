@@ -270,6 +270,53 @@ router.get("/generatebill/:bid", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/deletebill/{bid}:
+ *   delete:
+ *     summary: Delete a bill by its ID
+ *     description: This endpoint deletes a bill by its unique ID (bid) from the database.
+ *     parameters:
+ *       - in: path
+ *         name: bid
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The unique ID of the bill to be deleted
+ *     responses:
+ *       200:
+ *         description: Bill deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Success message indicating the bill was deleted
+ *       404:
+ *         description: Bill not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message indicating the bill was not found
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message indicating a server error
+ */
+
+
 router.delete("/deletebill/:bid", async (req, res) => {
   try {
     const { bid } = req.params;  // Extracting the bid from params
@@ -294,5 +341,63 @@ router.delete("/deletebill/:bid", async (req, res) => {
   }
 });
 
+//request type - http://localhost:3000/api/search/patients?query=Jam
+router.get("/search/patients", async (req, res) => {
+  try{
+    const { query } = req.query;
+    if (!query) {
+      return res.status(400).json({ error: "Query parameter is required" });
+    }
+    //const patient = await Patient.findOne({UHID});
+    //  console.log(req.query)
+
+    const regex = new RegExp(query, 'i');
+
+    const results = await Patient.find({ firstName: regex }).limit(10); // Limit to top 10 results for performance
+    res.status(200).json({ results });
+  }catch(error){
+    console.error('Error fetching from DB:', error);
+    res.status(500).json({ error: 'An error occurred while fetching patients details' });
+  }
+});
+
+
+router.get("/search/doctors", async (req, res) =>{
+  try{
+    const {query} = req.query;
+    if (!query){
+      return res.status(400).json({error: "Query parameter is missing"})
+    }
+
+    const regex = new RegExp(query, 'i')
+    const results = await mongoose.connection.collection('doctors').find({name:regex}).limit(10).toArray()
+    res.status(200).json({ results });
+
+
+  }catch(error){
+    console.error('Error fetching from DB:', error);
+    res.status(500).json({ error: 'An error occurred while fetching doctor details' });
+  }
+})
+
+
+
+router.get("/search/medicines", async (req, res) =>{
+  try{
+    const {query} = req.query;
+    if (!query){
+      return res.status(400).json({error: "Query parameter is missing"})
+    }
+
+    const regex = new RegExp(query, 'i')
+    const results = await Medicine.find({name:regex}).limit(10)
+    res.status(200).json({ results });
+
+
+  }catch(error){
+    console.error('Error fetching from DB:', error);
+    res.status(500).json({ error: 'An error occurred while fetching medicines' });
+  }
+})
 module.exports = router;
 
