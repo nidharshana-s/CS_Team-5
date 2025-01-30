@@ -6,8 +6,8 @@ const billSchema = new mongoose.Schema({
     UHID : {type:String, required:true},
     med: [
         {
-          mid: { type: String, required: true }, // Medicine ID (foreign key)
-          quantity: { type: Number, required: true }, // Quantity of the medicine
+          mid: { type: String, required: true },
+          quantity: { type: Number, required: true }, 
           _id: false,
         },
       ],
