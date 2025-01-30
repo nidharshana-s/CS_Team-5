@@ -63,9 +63,13 @@ const router = express.Router()
 router.post("/createbill", async (req, res) => {
     try {
       // Extract medicines from the request body
-      const { pid , med } = req.body;
+      const {UHID, reg_no, med} = req.body
+      //const pid = req.body.UHID;
+      //const med = req.body.med
+      //const reg_no = req.body.reg_no
+      console.log(req.body)
       //const {patient} = req.body.pid;
-      const UHID = pid;
+      //const UHID = pid;
       if (!UHID) {
         return res.status(400).json({ error: 'Patient ID (pid) is required' });
       }
@@ -97,6 +101,7 @@ router.post("/createbill", async (req, res) => {
   
         // Add the price to the total
         total += medicine.price * quantity;
+        console.log(total)
       }
   
       // Generate a unique `bid` (bill ID)
@@ -107,6 +112,7 @@ router.post("/createbill", async (req, res) => {
       const newBill = new Bill({
         bid,
         UHID,
+        reg_no,
         med,
         total,
         Date:new Date()
@@ -120,6 +126,7 @@ router.post("/createbill", async (req, res) => {
         message: "Bill created successfully",
         bid,
         UHID,
+        reg_no,
         med,
         total,
         Date:new Date()
