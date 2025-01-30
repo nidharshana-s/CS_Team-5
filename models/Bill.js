@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const billSchema = new mongoose.Schema({
     bid : {type:String, required: true},
     UHID : {type:String, required:true},
+    reg_no : {type:String, required:true},
     med: [
       {
         mid: { type: String, required: true }, // Medicine ID (foreign key)
