@@ -60,7 +60,6 @@ const router = express.Router()
  *         description: Bad request
  */
 
-
 router.post("/createbill", async (req, res) => {
     try {
       // Extract medicines from the request body
@@ -137,6 +136,7 @@ router.post("/createbill", async (req, res) => {
       res.status(500).json({ error: "Internal server error" });
     }
   });
+
 
 /**
  * @swagger
@@ -226,7 +226,7 @@ router.post("/createbill", async (req, res) => {
 router.get("/generatebill/:bid", async (req, res) => {
   try{
     console.log(req)
-    const { bid } = req.params;  // Correct way to extract bid from params
+    const { bid } = req.params;
 
     const bill = await Bill.findOne({ bid });
     console.log(bill)
@@ -275,6 +275,43 @@ router.get("/generatebill/:bid", async (req, res) => {
     console.error('Error generating bill:', error);
     res.status(500).json({ error: 'An error occurred while generating the bill' });
   
+  }
+});
+router.get("/getbills", async (req, res) => {
+  try {
+    const bills = await Bill.find();
+    if (!bills || bills.length === 0) {
+      return res.status(404).json({ error: 'No bills found' });
+    }
+
+    const billsWithMedicineDetails = await Promise.all(
+      bills.map(async (bill) => {
+        const medicineDetails = await Promise.all(
+          bill.med.map(async (medicine) => {
+            const medDetails = await Medicine.findOne({ mid: medicine.mid });
+            if (!medDetails) {
+              throw new Error(`Medicine with ID ${medicine.mid} not found`);
+            }
+            return {
+              mid: medicine.mid,
+              quantity: medicine.quantity,
+              price: medDetails.price,
+              name: medDetails.name,
+            };
+          })
+        );
+        return {
+          ...bill._doc,
+          medicines: medicineDetails,
+        };
+      })
+    );
+
+    console.log(billsWithMedicineDetails);
+    res.status(200).json(billsWithMedicineDetails);
+  } catch (error) {
+    console.error('Error retrieving bills:', error.message);
+    res.status(500).json({ error: 'An error occurred while retrieving the bills' });
   }
 });
 
@@ -349,7 +386,6 @@ router.delete("/deletebill/:bid", async (req, res) => {
   }
 });
 
-//request type - http://localhost:3000/api/search/patients?query=Jam
 router.get("/search/patients", async (req, res) => {
   try{
     const { query } = req.query;
@@ -361,7 +397,7 @@ router.get("/search/patients", async (req, res) => {
 
     const regex = new RegExp(query, 'i');
 
-    const results = await Patient.find({ firstName: regex }).limit(10); // Limit to top 10 results for performance
+    const results = await Patient.find({ UHID: regex }).limit(10); // Limit to top 10 results for performance
     res.status(200).json({ results });
   }catch(error){
     console.error('Error fetching from DB:', error);
@@ -378,7 +414,7 @@ router.get("/search/doctors", async (req, res) =>{
     }
 
     const regex = new RegExp(query, 'i')
-    const results = await mongoose.connection.collection('doctors').find({name:regex}).limit(10).toArray()
+    const results = await mongoose.connection.collection('doctors').find({reg_no:regex}).limit(10).toArray()
     res.status(200).json({ results });
 
 

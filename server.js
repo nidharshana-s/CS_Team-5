@@ -4,25 +4,27 @@ const bodyParser = require("body-parser");
 const { specs, swaggerUi } = require('./config/swagger');
 require("dotenv").config();
 
-
+const cors = require("cors");
 const app = express();
 
-// Middleware
-//app.use(bodyParser.json());
+const corsOptions = {
+  origin: "*",
+  methods: "GET,POST,PUT,DELETE",
+  allowedHeaders: "Content-Type",
+  credentials: true,
+};
+app.use(cors(corsOptions));
 app.use(express.json()); 
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
-// MongoDB connection
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => console.log("Connected to MongoDB"))
   .catch(err => console.error("MongoDB connection error:", err));
 
-//Routes
 const billRoutes = require("./routes/bills");
 app.use("/api", billRoutes);
 
-// Start the server
-const PORT = process.env.PORT
+const PORT = 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
