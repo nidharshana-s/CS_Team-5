@@ -27,4 +27,4 @@ const billRoutes = require("./routes/bills");
 app.use("/api", billRoutes);
 
 const PORT = 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}\nhttp://localhost:3000/api-docs`));

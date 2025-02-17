@@ -277,6 +277,84 @@ router.get("/generatebill/:bid", async (req, res) => {
 
   }
 });
+/**
+ * @swagger
+ * /api/getbills:
+ *   get:
+ *     summary: Retrieve bills of patient with UHID and its medicine information
+ *     description: This endpoint retrieve bills by its patient ID (uhid). It includes details about the medicines in the bill.
+ *     responses:
+ *       200:
+ *         description: Bills retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   description: Unique identifier for the order
+ *                 bid:
+ *                   type: string
+ *                   description: Unique ID of the bill
+ *                 UHID:
+ *                   type: string
+ *                   description: Unique Health ID of the patient
+ *                 reg_no:
+ *                   type: string
+ *                   description: Registration number of the patient
+ *                 med:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                        mid:
+ *                         type: string
+ *                         description: Medicine ID
+ *                        quantity:
+ *                         type: integer
+ *                         description: Quantity of the medicine
+ *                 total:
+ *                   type: integer
+ *                   description: Total bill amount
+ *                 medicines:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       mid:
+ *                         type: string
+ *                         description: Medicine ID
+ *                       name:
+ *                         type: string
+ *                         description: Name of the medicine
+ *                       quantity:
+ *                         type: integer
+ *                         description: Quantity of the medicine
+ *                       price:
+ *                         type: number
+ *                         description: Price of the medicine
+ *       404:
+ *         description: Bill or patient not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message
+ */
 router.get("/getbills", async (req, res) => {
   try {
     const bills = await Bill.find();
